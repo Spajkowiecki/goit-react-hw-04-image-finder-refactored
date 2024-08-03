@@ -1,0 +1,9 @@
+/*! setting the main container for photos */
+.gallery {
+  display: flex;
+  padding: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  height: max-content;
+  gap: 10px;
+}

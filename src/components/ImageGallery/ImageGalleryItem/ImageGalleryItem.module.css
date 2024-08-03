@@ -1,0 +1,53 @@
+.galleryItem {
+  position: relative;
+  border: 1px solid orange;
+  min-width: 200px;
+  width: 455px;
+  height: fit-content;
+  /*? hide stats bar*/
+  overflow: hidden;
+}
+
+.galleryItem:hover {
+  transform: scale(0.99);
+}
+
+.galleryItem:hover .stats {
+  transform: translateY(-100%);
+}
+
+.photo img {
+  width: 100%;
+  height: 300px;
+  vertical-align: top;
+}
+
+.stats {
+  position: absolute;
+  display: flex;
+  background: orange;
+  transition: 0.25s ease-in;
+}
+
+.stats span {
+  display: flex;
+  padding: 5px;
+  align-items: center;
+  justify-content: space-around;
+}
+
+/*! setting color of svg*/
+.stats span svg {
+  fill: white;
+  height: 30px;
+}
+
+/*! setting color of svg on hover */
+.stats span:hover svg {
+  fill: #212121;
+}
+
+.stats span:hover {
+  color: #212121;
+  background: darkorange;
+}

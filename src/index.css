@@ -1,0 +1,34 @@
+@import-normalize; /* bring in normalize.css styles */
+
+/*! setting styles for every NODE */
+* {
+  box-sizing: border-box;
+  /*? reset default style of list*/
+  list-style: none;
+  /*? reseting margins*/
+  padding: 0;
+  margin: 0;
+  /*? reseting every text decoration */
+  text-decoration: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: white;
+  background: #18191a;
+
+  /* RESETS */
+}
+/* 
+main {
+  padding: 10px;
+} */
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
