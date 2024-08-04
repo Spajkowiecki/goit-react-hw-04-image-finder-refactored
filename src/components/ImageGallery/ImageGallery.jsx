@@ -1,13 +1,8 @@
-import { Component } from 'react';
 import PropTypes from 'prop-types';
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 import style from './ImageGallery.module.css';
 
 export default function ImageGallery({ images, selectedImage }) {
-  function getClickedImage(value) {
-    selectedImage(value);
-  }
-
   return (
     <ul className={style.gallery}>
       {images.map(image => {
@@ -15,7 +10,7 @@ export default function ImageGallery({ images, selectedImage }) {
           <ImageGalleryItem
             key={image.id}
             image={image}
-            clickedImage={values => getClickedImage(values)}
+            clickedImage={values => selectedImage(values)}
           />
         );
       })}
