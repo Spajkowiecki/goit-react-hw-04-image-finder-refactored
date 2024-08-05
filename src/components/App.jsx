@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, useEffect } from 'react';
 import style from './App.module.css';
 import Loader from './Loader/Loader';
 import ImageGallery from './ImageGallery/ImageGallery';
@@ -26,6 +26,51 @@ const allStates = {
   showButton: false,
 };
 //example link https://pixabay.com/api/?q=cat&page=1&key=your_key&image_type=photo&orientation=horizontal&per_page=12
+
+export default function App()
+{
+  //setting basics states for searching, statistics and display
+
+  const [API_KEY] = setState('32705986-6617e254891a5833ed9977223');
+
+  //! database querry
+  const [querry, setQuerry] = setState('');
+
+  //! active page
+  const [activePage, setActivePage] = setState(0);
+
+  //! limit images per quarry
+  const [perPage, setPerPage] = setState(12);
+
+  //! empty array for storing hits
+  const [hits, setHits] = setState([]);
+
+  //! total hits
+  const [totalHits, setTotalHits] = setState(0);
+
+  //! total images
+  const [total, setTotal] = setState(0);
+  //
+  //! waiting for response
+  const [isLoading, setIsLoading] = setState(false);
+  const [error, setError] = setState(null);
+
+  //
+  const [selectedImage, setSelectedImage] = setState('');
+  const [isModalOpen, setIsModalOpen] = setState(false);
+
+  const [showButton, setShowButton] = setState(false);
+
+
+  useEffect(() =>{
+    apiCall = async () =>
+    {
+      setIsLoading(true);
+      setShowButton(false);
+    }
+  }, [])
+
+}
 
 class App extends Component {
   //! refactorisation of application
