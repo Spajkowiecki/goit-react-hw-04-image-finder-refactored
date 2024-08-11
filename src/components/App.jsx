@@ -1,4 +1,4 @@
-import { Component, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import style from './App.module.css';
 import Loader from './Loader/Loader';
 import ImageGallery from './ImageGallery/ImageGallery';
@@ -11,234 +11,156 @@ import Statistics from './Statistics/Statistics';
 import PropTypes from 'prop-types';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
-const API_KEY = '32705986-6617e254891a5833ed9977223';
-const allStates = {
-  querry: '', //! database querry
-  isLoading: false, //! waiting for response
-  perPage: 12, //! limit images per quarry
-  activePage: 1, //! active page
-  hits: [], //! empty array for storing hits
-  error: null,
-  totalHits: 0, //! total hits
-  total: 0, //! total images
-  isModalOpen: false,
-  selectedImage: '',
-  showButton: false,
-};
 //example link https://pixabay.com/api/?q=cat&page=1&key=your_key&image_type=photo&orientation=horizontal&per_page=12
 
-export default function App()
-{
+export default function App() {
   //setting basics states for searching, statistics and display
 
-  const [API_KEY] = setState('32705986-6617e254891a5833ed9977223');
+  const [API_KEY] = useState('32705986-6617e254891a5833ed9977223');
 
   //! database querry
-  const [querry, setQuerry] = setState('');
+  const [querry, setQuerry] = useState('');
 
   //! active page
-  const [activePage, setActivePage] = setState(0);
+  const [activePage, setActivePage] = useState(1);
 
   //! limit images per quarry
-  const [perPage, setPerPage] = setState(12);
+  const [perPage, setPerPage] = useState(12);
 
   //! empty array for storing hits
-  const [hits, setHits] = setState([]);
+  const [hits, setHits] = useState([]);
 
   //! total hits
-  const [totalHits, setTotalHits] = setState(0);
+  const [totalHits, setTotalHits] = useState(0);
 
   //! total images
-  const [total, setTotal] = setState(0);
+  const [total, setTotal] = useState(0);
   //
   //! waiting for response
-  const [isLoading, setIsLoading] = setState(false);
-  const [error, setError] = setState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   //
-  const [selectedImage, setSelectedImage] = setState('');
-  const [isModalOpen, setIsModalOpen] = setState(false);
+  const [selectedImage, setSelectedImage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [showButton, setShowButton] = setState(false);
+  const [showButton, setShowButton] = useState(false);
 
-
-  useEffect(() =>{
-    apiCall = async () =>
-    {
+  //just on stert and for the core changes
+  useEffect(() => {
+    const getImages = async () => {
       setIsLoading(true);
+      console.log('WAITING FOR RESPONSE...');
+      try {
+        //destructured to get data from response
+        const { data } = await axios.get(
+          `?key=${API_KEY}&q=${querry}&page=${activePage}&per_page=${perPage}&image_type=photo&orientation=horizontal`
+        );
+        console.log(data);
+        //----------------------------
+        if (activePage > 1) {
+          setHits(prevHits => [...prevHits, ...data.hits]);
+        } else {
+          setHits(data.hits);
+        }
+        setTotal(data.total);
+        setTotalHits(data.totalHits);
+        //----------------------------
+      } catch (error) {
+        console.log('[ERROR]: ', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getImages();
+  }, [querry, activePage]);
+  //just for checking data
+
+  useEffect(() => {
+    console.log(`total: ${total} | totalHits: ${totalHits} | hits:`, hits);
+  }, [hits, totalHits, total]);
+
+  const updateSearchValue = value => {
+    setQuerry(value.trim());
+    setHits([]);
+    setActivePage(1);
+  };
+
+  const handleSelectImage = value => {
+    setSelectedImage(value);
+    openModal();
+  };
+
+  const handleNextPage = () => {
+    setActivePage(activePage + 1);
+  };
+
+  const showLoadMoreButton = () => {
+    if (hits.length > 0 && total - activePage * 12 > 0) {
       setShowButton(false);
     }
-  }, [])
-
-}
-
-class App extends Component {
-  //! refactorisation of application
-  //? setting the default props from preventing errors before they are loaded in
-  static defaultProps = {
-    ...allStates,
-  };
-
-  // search - field to write new Querries for searching images, need to update galleryImage after sending request
-
-  state = {
-    ...allStates,
-  };
-
-  //! sending request to API
-  apiCall = async () => {
-    const { querry, activePage, perPage } = this.state;
-    this.setState({ isLoading: true, showButton: false });
-    try {
-      const { data } = await axios.get(
-        `?key=${API_KEY}&q=${querry}&page=${activePage}&per_page=${perPage}&image_type=photo&orientation=horizontal`
-      );
-
-      // const newHits = data.hits.filter(
-      //   newImage =>
-      //     !this.state.hits.some(
-      //       existingImage => existingImage.id === newImage.id
-      //     )
-      // );
-      //? setting states after getting querry response
-
-      this.setState({
-        hits: [...this.state.hits, ...data.hits],
-        total: data.total,
-        totalHits: data.totalHits,
-      });
-
-      // this.setState({
-      //   hits: data.hits,
-      //   total: data.total,
-      //   totalHits: data.totalHits,
-      // });
-
-      console.log('1: APICALL[DATA]:', data.hits);
-    } catch (error) {
-      console.log('APICALL[ERROR]: ', error.message);
-      this.setState({ error: error.message });
-    } finally {
-      this.setState({ isLoading: false, showButton: true });
-    }
-  };
-  componentDidUpdate(_, prevState) {
-    console.log('[CDU]------->');
-    if (
-      prevState.activePage !== this.state.activePage ||
-      this.state.querry !== prevState.querry
-    ) {
-      this.apiCall();
-    }
-  }
-
-  updateSearchValue = value => {
-    this.setState({ querry: value.trim(), hits: [], activePage: 1 });
-  };
-
-  keyPressEvent = event => {
-    if (event.key === 'Escape') {
-      this.closeModal();
+    if (total - activePage * 12 < 0) {
+      setShowButton(true);
     }
   };
 
-  clickEvent = event => {
-    if (event.target.nodeName !== 'IMG') {
-      this.closeModal();
-    }
-  };
-
-  openModal = () => {
-    this.setState({
-      isModalOpen: true,
-    });
-    window.addEventListener('keydown', this.keyPressEvent);
-    window.addEventListener('click', this.clickEvent);
+  const openModal = () => {
+    setIsModalOpen(true);
+    window.addEventListener('keydown', event => keyPressEvent(event));
+    window.addEventListener('click', event => clickEvent(event));
     document.body.style.overflowY = 'hidden';
   };
 
-  closeModal = () => {
-    this.setState({ isModalOpen: false });
+  const closeModal = () => {
+    setIsModalOpen(false);
     document.body.style.overflowY = 'auto';
-    window.removeEventListener('keypress', this.keyPressEvent);
-    window.removeEventListener('click', this.clickEvent);
+    window.removeEventListener('keypress', keyPressEvent);
+    window.removeEventListener('click', clickEvent);
   };
 
-  handleSelectImage = value => {
-    this.setState({
-      selectedImage: value,
-    });
-
-    this.openModal();
-  };
-
-  //!Hide / Show for loading more photos
-  showLoadMoreButton = () => {
-    const { total, hits, activePage } = this.state;
-    if (hits.length > 0 && total - activePage * 12 > 0) {
-      return false;
-    }
-    if (total - activePage * 12 < 0) {
-      return true;
+  const keyPressEvent = event => {
+    if (event.key === 'Escape') {
+      closeModal();
     }
   };
 
-  //! Next page function, changing state of activePage
-  handleNextPage = () => {
-    this.setState(prev => ({
-      activePage: prev.activePage + 1,
-    }));
+  const clickEvent = event => {
+    if (event.target.nodeName !== 'IMG') {
+      closeModal();
+    }
   };
 
-  render() {
-    const {
-      hits,
-      total,
-      isLoading,
-      selectedImage,
-      isModalOpen,
-      error,
-      showButton,
-    } = this.state;
-    return (
-      <div className={style.container}>
-        {isModalOpen && (
-          <Modal>
-            <img src={selectedImage.largeImageURL} alt={selectedImage.tags} />
-          </Modal>
-        )}
-        <header>
-          <SearchBar value={this.updateSearchValue} />
-        </header>
-        <main>
-          <Statistics
-            toLoad={total}
-            loadedImages={this.state.activePage * this.state.perPage}
-          />
-          {isLoading && <Loader />}
-          {error && <p>Something went wrong...</p>}
-          <ImageGallery
-            selectedImage={this.handleSelectImage}
-            images={[...hits]}
-          />
-        </main>
-        {showButton === true ? <Button nextPage={this.handleNextPage} /> : null}
-      </div>
-    );
-  }
+  return (
+    <div className={style.container}>
+      {isModalOpen && (
+        <Modal>
+          <img src={selectedImage.largeImageURL} alt={selectedImage.tags} />
+        </Modal>
+      )}
+      <header>
+        <SearchBar value={updateSearchValue} />
+      </header>
+      <main>
+        <Statistics toLoad={total} loadedImages={activePage * perPage} />
+        {isLoading && <Loader />}
+        {error && <p>Something went wrong...</p>}
+        <ImageGallery selectedImage={handleSelectImage} images={[...hits]} />
+      </main>
+      {showLoadMoreButton ? <Button nextPage={handleNextPage} /> : null}
+    </div>
+  );
 }
 
-App.propTypes = {
-  querry: PropTypes.string.isRequired,
-  isLoading: PropTypes.bool.isRequired,
-  perPage: PropTypes.number.isRequired,
-  activePage: PropTypes.number.isRequired,
-  hits: PropTypes.array.isRequired,
-  error: PropTypes.object,
-  totalHits: PropTypes.number.isRequired,
-  total: PropTypes.number.isRequired,
-  isModalOpen: PropTypes.bool.isRequired,
-  selectedImage: PropTypes.string.isRequired,
-};
-
-export default App;
+// App.propTypes = {
+//   querry: PropTypes.string.isRequired,
+//   isLoading: PropTypes.bool.isRequired,
+//   perPage: PropTypes.number.isRequired,
+//   activePage: PropTypes.number.isRequired,
+//   hits: PropTypes.array.isRequired,
+//   error: PropTypes.object,
+//   totalHits: PropTypes.number.isRequired,
+//   total: PropTypes.number.isRequired,
+//   isModalOpen: PropTypes.bool.isRequired,
+//   selectedImage: PropTypes.string.isRequired,
+// };
