@@ -8,8 +8,6 @@ import axios from 'axios';
 import SearchBar from './SearchBar/SearchBar';
 import Statistics from './Statistics/Statistics';
 
-import PropTypes from 'prop-types';
-
 axios.defaults.baseURL = 'https://pixabay.com/api/';
 //example link https://pixabay.com/api/?q=cat&page=1&key=your_key&image_type=photo&orientation=horizontal&per_page=12
 
@@ -151,16 +149,3 @@ export default function App() {
     </div>
   );
 }
-
-// App.propTypes = {
-//   querry: PropTypes.string.isRequired,
-//   isLoading: PropTypes.bool.isRequired,
-//   perPage: PropTypes.number.isRequired,
-//   activePage: PropTypes.number.isRequired,
-//   hits: PropTypes.array.isRequired,
-//   error: PropTypes.object,
-//   totalHits: PropTypes.number.isRequired,
-//   total: PropTypes.number.isRequired,
-//   isModalOpen: PropTypes.bool.isRequired,
-//   selectedImage: PropTypes.string.isRequired,
-// };
