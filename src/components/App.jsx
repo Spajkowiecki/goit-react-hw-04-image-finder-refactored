@@ -45,6 +45,31 @@ export default function App() {
   const [showButton, setShowButton] = useState(false);
 
   //just on stert and for the core changes
+
+  const callToApi = async () => {
+    //? 1. at first we need to turn on loading spinner to show for user that data are loaded
+    setIsLoading(true);
+    try {
+      //? 3. Calling for data for API, destructured object {data}
+      const { data } = await axios.get(
+        `?key=${API_KEY}&q=${querry}&page=${activePage}&per_page=${perPage}&image_type=photo&orientation=horizontal`
+      );
+      //? 4. Apply data to variables
+      setHits(data.hits); //! hits
+      setTotalHits(data.totalHits); //! totalHits
+      setTotal(data.total); //! total
+    } catch (error) {
+      //when error occurs
+      console.log(
+        `[API ERROR] -> There are problems with images loading:`,
+        error
+      );
+    } finally {
+      //? 2. turn of loading spinner when loading images are finished(status: 200 | status: error)
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const getImages = async () => {
       setIsLoading(true);
@@ -72,12 +97,38 @@ export default function App() {
     };
 
     getImages();
-  }, [querry, activePage]);
-  //just for checking data
+  }, [querry, activePage, API_KEY, perPage]);
 
+  //@ DOROBIC SPRAWDZANIE ILOSCI OBRAZÓW
   useEffect(() => {
     console.log(`total: ${total} | totalHits: ${totalHits} | hits:`, hits);
-  }, [hits, totalHits, total]);
+  }, [total, totalHits, hits]);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      const keyPressEvent = event => {
+        if (event.key === 'Escape') {
+          closeModal();
+        }
+      };
+
+      const clickEvent = event => {
+        if (event.target.nodeName !== 'IMG') {
+          closeModal();
+        }
+      };
+
+      window.addEventListener('keydown', keyPressEvent);
+      window.addEventListener('click', clickEvent);
+      document.body.style.overflowY = 'hidden';
+
+      return () => {
+        window.removeEventListener('keydown', keyPressEvent);
+        window.removeEventListener('click', clickEvent);
+        document.body.style.overflowY = 'auto';
+      };
+    }
+  }, [isModalOpen]);
 
   const updateSearchValue = value => {
     setQuerry(value.trim());
@@ -87,7 +138,7 @@ export default function App() {
 
   const handleSelectImage = value => {
     setSelectedImage(value);
-    openModal();
+    setIsModalOpen(true);
   };
 
   const handleNextPage = () => {
@@ -96,18 +147,11 @@ export default function App() {
 
   const showLoadMoreButton = () => {
     if (hits.length > 0 && total - activePage * 12 > 0) {
-      setShowButton(false);
+      return false;
     }
     if (total - activePage * 12 < 0) {
-      setShowButton(true);
+      return true;
     }
-  };
-
-  const openModal = () => {
-    setIsModalOpen(true);
-    window.addEventListener('keydown', event => keyPressEvent(event));
-    window.addEventListener('click', event => clickEvent(event));
-    document.body.style.overflowY = 'hidden';
   };
 
   const closeModal = () => {
@@ -145,7 +189,7 @@ export default function App() {
         {error && <p>Something went wrong...</p>}
         <ImageGallery selectedImage={handleSelectImage} images={[...hits]} />
       </main>
-      {showLoadMoreButton ? <Button nextPage={handleNextPage} /> : null}
+      {showButton ? <Button nextPage={handleNextPage} /> : null}
     </div>
   );
 }
