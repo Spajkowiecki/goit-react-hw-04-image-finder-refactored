@@ -1,5 +1,5 @@
 .loader {
-  position: absolute;
+  position: fixed;
   fill: white;
   width: 32px;
   height: 32px;
