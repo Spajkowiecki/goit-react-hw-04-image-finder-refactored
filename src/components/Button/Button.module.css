@@ -22,3 +22,8 @@
   background-color: orange;
   transform: scale(0.9);
 }
+
+.button:disabled {
+  background-color: rgba(255, 166, 0, 0.475);
+  cursor: progress;
+}

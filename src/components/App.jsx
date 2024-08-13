@@ -46,120 +46,62 @@ export default function App() {
 
   //just on stert and for the core changes
 
-  const callToApi = async () => {
-    //? 1. at first we need to turn on loading spinner to show for user that data are loaded
-    setIsLoading(true);
-    try {
-      //? 3. Calling for data for API, destructured object {data}
-      const { data } = await axios.get(
-        `?key=${API_KEY}&q=${querry}&page=${activePage}&per_page=${perPage}&image_type=photo&orientation=horizontal`
-      );
-      //? 4. Apply data to variables
-      setHits(data.hits); //! hits
-      setTotalHits(data.totalHits); //! totalHits
-      setTotal(data.total); //! total
-    } catch (error) {
-      //when error occurs
-      console.log(
-        `[API ERROR] -> There are problems with images loading:`,
-        error
-      );
-    } finally {
-      //? 2. turn of loading spinner when loading images are finished(status: 200 | status: error)
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const getImages = async () => {
+    const callToApi = async () => {
+      //? 1. at first we need to turn on loading spinner to show for user that data are loaded
+      setShowButton(false);
       setIsLoading(true);
-      console.log('WAITING FOR RESPONSE...');
       try {
-        //destructured to get data from response
+        //? 3. Calling for data for API, destructured object {data}
         const { data } = await axios.get(
           `?key=${API_KEY}&q=${querry}&page=${activePage}&per_page=${perPage}&image_type=photo&orientation=horizontal`
         );
-        console.log(data);
-        //----------------------------
-        if (activePage > 1) {
-          setHits(prevHits => [...prevHits, ...data.hits]);
-        } else {
-          setHits(data.hits);
-        }
-        setTotal(data.total);
-        setTotalHits(data.totalHits);
-        //----------------------------
+        //? 4. Apply data to variables
+        //! when querry not change, but page is we need to add photos together to array
+        setHits(data.hits); //! hits
+        setTotalHits(data.totalHits); //! totalHits
+        setTotal(data.total); //! total
       } catch (error) {
-        console.log('[ERROR]: ', error);
+        //when error occurs
+        console.log(
+          `[API ERROR] -> There are problems with images loading:`,
+          error
+        );
+        setError(error);
       } finally {
+        //? 2. turn of loading spinner when loading images are finished(status: 200 | status: error)
         setIsLoading(false);
       }
     };
 
-    getImages();
+    callToApi();
   }, [querry, activePage, API_KEY, perPage]);
 
   //@ DOROBIC SPRAWDZANIE ILOSCI OBRAZÓW
   useEffect(() => {
-    console.log(`total: ${total} | totalHits: ${totalHits} | hits:`, hits);
-  }, [total, totalHits, hits]);
+    //! calculations to determine when button ( + ) should show
+    if (activePage * perPage <= total) {
+      setShowButton(true);
+    } else {
+      setShowButton(false);
+    }
+    //!-----------------------------------
+  }, [activePage, perPage, total]);
 
   useEffect(() => {
+    //! everything with modal
+
     if (isModalOpen) {
-      const keyPressEvent = event => {
-        if (event.key === 'Escape') {
-          closeModal();
-        }
-      };
-
-      const clickEvent = event => {
-        if (event.target.nodeName !== 'IMG') {
-          closeModal();
-        }
-      };
-
-      window.addEventListener('keydown', keyPressEvent);
+      window.addEventListener('keypress', keyPressEvent);
       window.addEventListener('click', clickEvent);
-      document.body.style.overflowY = 'hidden';
-
-      return () => {
-        window.removeEventListener('keydown', keyPressEvent);
-        window.removeEventListener('click', clickEvent);
-        document.body.style.overflowY = 'auto';
-      };
     }
+
+    return () => {
+      window.removeEventListener('keydown', keyPressEvent);
+      window.removeEventListener('click', clickEvent);
+      document.body.style.overflowY = 'auto';
+    };
   }, [isModalOpen]);
-
-  const updateSearchValue = value => {
-    setQuerry(value.trim());
-    setHits([]);
-    setActivePage(1);
-  };
-
-  const handleSelectImage = value => {
-    setSelectedImage(value);
-    setIsModalOpen(true);
-  };
-
-  const handleNextPage = () => {
-    setActivePage(activePage + 1);
-  };
-
-  const showLoadMoreButton = () => {
-    if (hits.length > 0 && total - activePage * 12 > 0) {
-      return false;
-    }
-    if (total - activePage * 12 < 0) {
-      return true;
-    }
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    document.body.style.overflowY = 'auto';
-    window.removeEventListener('keypress', keyPressEvent);
-    window.removeEventListener('click', clickEvent);
-  };
 
   const keyPressEvent = event => {
     if (event.key === 'Escape') {
@@ -173,11 +115,39 @@ export default function App() {
     }
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    document.body.style.overflowY = 'auto';
+    window.removeEventListener('keydown', keyPressEvent);
+    window.removeEventListener('click', clickEvent);
+  };
+
+  const updateSearchValue = value => {
+    setQuerry(value.trim());
+    setHits([]);
+    setActivePage(1);
+  };
+
+  const handleSelectImage = value => {
+    setIsLoading(true);
+    setSelectedImage(value);
+    setIsModalOpen(true);
+  };
+
+  const handleNextPage = () => {
+    setActivePage(activePage + 1);
+  };
+
   return (
     <div className={style.container}>
       {isModalOpen && (
         <Modal>
-          <img src={selectedImage.largeImageURL} alt={selectedImage.tags} />
+          {isLoading && <Loader />}
+          <img
+            onLoad={() => setIsLoading(false)}
+            src={selectedImage.largeImageURL}
+            alt={selectedImage.tags}
+          />
         </Modal>
       )}
       <header>
