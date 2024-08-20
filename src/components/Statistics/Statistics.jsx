@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import style from './Statistics.module.css';
 
 export default function Statistics({ loadedImages, toLoad }) {
@@ -19,8 +18,3 @@ export default function Statistics({ loadedImages, toLoad }) {
     </div>
   );
 }
-
-Statistics.propTypes = {
-  loadImages: PropTypes.number,
-  toLoad: PropTypes.number,
-};
