@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
-import useApi from './useApi';
 
-export default function usePagination() {
+export default function usePagination(total, activePage, setActivePage) {
   const [showButton, setShowButton] = useState(false);
-  const [activePage, setActivePage] = useState(1);
-
-  const { total } = useApi(activePage);
 
   useEffect(() => {
     console.log('total: ' + total);
@@ -17,14 +13,12 @@ export default function usePagination() {
   }, [activePage, total]);
 
   const handleNextPage = () => {
-    setActivePage(activePage + 1);
+    setActivePage(prevPage => prevPage + 1);
   };
 
   return {
-    activePage,
     showButton,
-    setShowButton,
-    handleNextPage,
     setActivePage,
+    handleNextPage,
   };
 }

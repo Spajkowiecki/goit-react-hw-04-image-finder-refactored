@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import usePagination from './usePagination';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
 
@@ -36,7 +35,7 @@ export default function useApi(activePage) {
     if (querry) {
       callToApi();
     }
-  }, [querry, activePage, API_KEY]);
+  }, [querry, total, activePage, API_KEY]);
 
   const updateSearchValue = value => {
     if (value !== querry) {

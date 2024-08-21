@@ -9,7 +9,6 @@ import SearchBar from './SearchBar/SearchBar';
 import Statistics from './Statistics/Statistics';
 import useApi from 'hooks/useApi';
 import usePagination from 'hooks/usePagination';
-
 // Przykładowy link: https://pixabay.com/api/?q=cat&page=1&key=your_key&image_type=photo&orientation=horizontal&per_page=12
 
 export default function App() {
@@ -19,9 +18,9 @@ export default function App() {
   const [selectedImage, setSelectedImage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { total, hits, isLoading, setIsLoading, updateSearchValue, error } =
-    useApi();
-  const { showButton, handleNextPage } = usePagination(total);
+  const { total, error, hits, isLoading, setIsLoading, updateSearchValue } =
+    useApi(handleNextPage);
+  const { showButton, handleNextPage } = usePagination();
 
   // Funkcje obsługi zdarzeń z użyciem useCallback
   const keyPressEvent = useCallback(
