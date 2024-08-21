@@ -3,11 +3,10 @@ import axios from 'axios';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
 
-export default function useApi(activePage) {
+export default function useApi(activePage, setIsLoading) {
   const [API_KEY] = useState('32705986-6617e254891a5833ed9977223');
   const [querry, setQuerry] = useState('');
 
-  const [isLoading, setIsLoading] = useState(false);
   const [hits, setHits] = useState([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState(null);
@@ -35,7 +34,7 @@ export default function useApi(activePage) {
     if (querry) {
       callToApi();
     }
-  }, [querry, total, activePage, API_KEY]);
+  }, [querry, activePage, setIsLoading, API_KEY]);
 
   const updateSearchValue = value => {
     if (value !== querry) {
@@ -48,8 +47,6 @@ export default function useApi(activePage) {
     total,
     error,
     hits,
-    isLoading,
-    setIsLoading,
     updateSearchValue,
   };
 }

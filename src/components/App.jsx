@@ -9,62 +9,28 @@ import SearchBar from './SearchBar/SearchBar';
 import Statistics from './Statistics/Statistics';
 import useApi from 'hooks/useApi';
 import usePagination from 'hooks/usePagination';
+import useModal from 'hooks/useModal';
 // Przykładowy link: https://pixabay.com/api/?q=cat&page=1&key=your_key&image_type=photo&orientation=horizontal&per_page=12
 
 export default function App() {
   // Definiowanie stanów
   // Poprawna definicja setTotal
 
-  const [selectedImage, setSelectedImage] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activePage, setActivePage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { total, error, hits, isLoading, setIsLoading, updateSearchValue } =
-    useApi(handleNextPage);
-  const { showButton, handleNextPage } = usePagination();
-
-  // Funkcje obsługi zdarzeń z użyciem useCallback
-  const keyPressEvent = useCallback(
-    event => {
-      if (event.key === 'Escape') {
-        closeModal();
-      }
-    },
-    [] // Brak zależności, funkcja jest stabilna
+  const { total, error, hits, updateSearchValue } = useApi(
+    activePage,
+    setIsLoading
+  );
+  const { showButton, handleNextPage } = usePagination(
+    total,
+    activePage,
+    setActivePage
   );
 
-  const clickEvent = useCallback(
-    event => {
-      if (event.target.nodeName !== 'IMG') {
-        closeModal();
-      }
-    },
-    [] // Brak zależności, funkcja jest stabilna
-  );
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    document.body.style.overflowY = 'auto';
-  };
-
-  useEffect(() => {
-    if (isModalOpen) {
-      window.addEventListener('keydown', keyPressEvent);
-      window.addEventListener('click', clickEvent);
-      document.body.style.overflowY = 'hidden'; // Zapobieganie przewijaniu strony pod modalem
-    }
-
-    return () => {
-      window.removeEventListener('keydown', keyPressEvent);
-      window.removeEventListener('click', clickEvent);
-      document.body.style.overflowY = 'auto';
-    };
-  }, [isModalOpen, keyPressEvent, clickEvent]);
-
-  const handleSelectImage = value => {
-    setIsLoading(true);
-    setSelectedImage(value);
-    setIsModalOpen(true);
-  };
+  const { isModalOpen, selectedImage, handleSelectImage } =
+    useModal(setIsLoading);
 
   return (
     <div className={style.container}>

@@ -5,15 +5,13 @@ import style from './ImageGallery.module.css';
 export default function ImageGallery({ images, selectedImage }) {
   return (
     <ul className={style.gallery}>
-      {images.map(image => {
-        return (
-          <ImageGalleryItem
-            key={image.id}
-            image={image}
-            clickedImage={values => selectedImage(values)}
-          />
-        );
-      })}
+      {images.map((image, index) => (
+        <ImageGalleryItem
+          key={`${image.id}-${index}`}
+          image={image}
+          clickedImage={selectedImage}
+        />
+      ))}
     </ul>
   );
 }
